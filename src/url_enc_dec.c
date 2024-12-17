@@ -1,32 +1,6 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <ctype.h>
 
-char to_hex(char character);
-char to_dec(char character);
-void encode(char *og, char *buf);
-void decode(char *enc, char *dec);
-
-int main() {
-    char og[] = "matheus @)(#@#*(_)@#";
-    char *enc = (char *)malloc(strlen(og) * 3 + 1);
-
-    encode(og, enc);
-
-    printf("Original: %s\n", og);
-    printf("Encodado: %s\n", enc);
-
-    char *dec = (char *)malloc(strlen(og));
-
-    decode(enc, dec);
-
-    printf("Decodado: %s\n", dec);
-
-    free(enc);
-    free(dec);
-    return 0;
-}
+#include "../header/url_enc_dec.h"
 
 char to_hex(char character) {
     static char hex[] = "0123456789abcdef";
@@ -51,6 +25,8 @@ void encode(char *og, char *enc) {
     while (*pOg) {
         if (isalnum(*pOg) || *pOg == '-' || *pOg == '_' || *pOg == '.' || *pOg == '~') {
             *pNew++ = *pOg;
+        } else if (*pOg == ' ') {
+            *pNew++ = '+';
         } else {
             *pNew++ = '%'; 
             //bitwise right-shift, mover 4 bits à direita -> num / 2^4 -> num / 16
@@ -72,6 +48,8 @@ void decode(char *enc, char *dec) {
             //bitwise left-shift, mover 4 bits à esquerda -> num * 2^4 -> num * 16
             *pDec++ = ((pEnc[1]) << 4) + to_dec(pEnc[2]);
             pEnc += 2;
+        } else if (*pEnc == '+') {
+            *pDec++ = ' ';
         } else {
             *pDec++ = *pEnc;
         }
